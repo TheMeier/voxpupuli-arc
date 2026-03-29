@@ -1,0 +1,62 @@
+---
+githubConfigUrl: "https://github.com/voxpupuli"
+
+runnerGroup: "voxarc"
+containerMode:
+  type: "kubernetes"
+  kubernetesModeWorkVolumeClaim:
+    accessModes: ["ReadWriteOnce"]
+    resources:
+      requests:
+        storage: 1Gi
+  kubernetesModeAdditionalRoleRules: []
+
+template:
+  spec:
+    securityContext:
+      fsGroup: 123
+    containers:
+      - name: runner
+        image: ghcr.io/actions/actions-runner@sha256:b57864c9fcda15ea4a270446aa9cfb108b819a26f6e71fc515f6caf6c27989c6  # 2.333.1
+        command: ["/home/runner/run.sh"]
+        env:
+          - name: ACTIONS_RUNNER_CONTAINER_HOOKS
+            value: /home/runner/k8s/index.js
+          - name: ACTIONS_RUNNER_CONTAINER_HOOK_TEMPLATE
+            value: /home/runner/pod-template.yaml
+          - name: ACTIONS_RUNNER_POD_NAME
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.name
+          - name: ACTIONS_RUNNER_REQUIRE_JOB_CONTAINER
+            value: "true"
+        # to be discussed
+        resources:
+          requests:
+            cpu: "500m"
+            memory: "1Gi"
+          limits:
+            cpu: "16"
+            memory: "32Gi"
+        volumeMounts:
+          - name: hostedtoolcache
+            mountPath: /opt/hostedtoolcache
+          - name: work
+            mountPath: /home/runner/_work
+          - name: pod-template
+            mountPath: /home/runner/pod-template.yaml
+            subPath: pod-template.yaml
+    volumes:
+      - name: work
+        ephemeral:
+          volumeClaimTemplate:
+            spec:
+              accessModes: [ "ReadWriteOnce" ]
+              resources:
+                requests:
+                  storage: 1Gi
+      - name: hostedtoolcache
+        emptyDir: {}
+      - name: pod-template
+        configMap:
+          name: runnerset-voxpupuli-k8s-pod-template
