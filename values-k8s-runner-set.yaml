@@ -3,12 +3,7 @@ githubConfigUrl: "https://github.com/voxpupuli"
 
 runnerGroup: "voxarc"
 containerMode:
-  type: "kubernetes"
-  kubernetesModeWorkVolumeClaim:
-    accessModes: ["ReadWriteOnce"]
-    resources:
-      requests:
-        storage: 1Gi
+  type: "kubernetes-novolume"
   kubernetesModeAdditionalRoleRules: []
 
 template:
@@ -17,11 +12,11 @@ template:
       fsGroup: 123
     containers:
       - name: runner
-        image: ghcr.io/actions/actions-runner@sha256:b57864c9fcda15ea4a270446aa9cfb108b819a26f6e71fc515f6caf6c27989c6  # 2.333.1
+        image: ghcr.io/actions/actions-runner@sha256:4ffadc0002b2581327e06101fc8c06cd189232baf79fe561fac9caeb76f5e807  # 2.338.0
         command: ["/home/runner/run.sh"]
         env:
           - name: ACTIONS_RUNNER_CONTAINER_HOOKS
-            value: /home/runner/k8s/index.js
+            value: /home/runner/k8s-novolume/index.js
           - name: ACTIONS_RUNNER_CONTAINER_HOOK_TEMPLATE
             value: /home/runner/pod-template.yaml
           - name: ACTIONS_RUNNER_POD_NAME
@@ -48,13 +43,7 @@ template:
             subPath: pod-template.yaml
     volumes:
       - name: work
-        ephemeral:
-          volumeClaimTemplate:
-            spec:
-              accessModes: [ "ReadWriteOnce" ]
-              resources:
-                requests:
-                  storage: 1Gi
+        emptyDir: {}
       - name: hostedtoolcache
         emptyDir: {}
       - name: pod-template

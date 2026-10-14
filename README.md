@@ -23,6 +23,7 @@ Both components are deployed to the `arc-system` namespace at chart version `0.1
 | -------------------------------- | ------------------------------------------------------------------ |
 | `install-arc-controller.sh`      | Installs/upgrades the ARC controller and runner scale set via Helm |
 | `values-default-runner-set.yaml` | Runner pod template (image, resources, volumes)                    |
+| `values-k8s-runner-set.yaml`     | Kubernetes no-volume runner pod template and container hooks       |
 
 ### Missing file
 `secret-values.yaml` — contains sensitive values (GitHub App credentials) and is not included in version control
@@ -34,7 +35,6 @@ Images can be found at:
 - Runner Scale Set: [ghcr.io/actions/actions-runner-controller](https://github.com/actions/runner/pkgs/container/actions-runner)
 
 For the controller the helm-chart version is used as tag by default (limited config options in helm-chart). For the runner set the version is set in the template spec of the runner set.
-
 ## GitHub App
 
 The GitHub App must be setup as described in the [ARC documentation](https://docs.github.com/en/actions/tutorials/use-actions-runner-controller/authenticate-to-the-api#authenticating-arc-with-a-github-app)
