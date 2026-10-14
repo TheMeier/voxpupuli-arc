@@ -25,6 +25,18 @@ helm upgrade --install runnerset-voxpupuli \
     oci://ghcr.io/actions/actions-runner-controller-charts/gha-runner-scale-set
 
 
+kubectl -n "$NAMESPACE" apply -f k8s-workflow-pod-template.yaml
+
+helm upgrade --install runnerset-voxpupuli-k8s \
+    --namespace "$NAMESPACE" \
+    --version 0.13.1 \
+    -f values-k8s-runner-set.yaml \
+    -f secret-values.yaml \
+    --set controllerServiceAccount.name="arc-gha-rs-controller" \
+    --set controllerServiceAccount.namespace="$NAMESPACE" \
+    oci://ghcr.io/actions/actions-runner-controller-charts/gha-runner-scale-set
+
+
 helm upgrade --install runnerset-openvoxproject \
     --namespace "$NAMESPACE" \
     --create-namespace \
